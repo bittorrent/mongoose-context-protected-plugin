@@ -1,3 +1,5 @@
+'use strict';
+
 // var assert = require('assert');
 // var _ = require('lodash');
 // var q = require('q');
@@ -7,5 +9,5 @@
 
 describe.skip('mongoose-context-protected-plugin nested objects', function () {
     describe('contextProtectedRead', function () {});
-    describe('contextProtectedWrite', function () {})
+    describe('contextProtectedWrite', function () {});
 });

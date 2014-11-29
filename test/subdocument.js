@@ -1,9 +1,9 @@
+'use strict';
+
 var assert = require('assert');
 var _ = require('lodash');
 var q = require('q');
-var debug = require('debug')('mongoose-context-protected-plugin:test');
 
-var Test = require('./db/test.model');
 var SubDocumentTest = require('./db/subdocument.model');
 
 describe('mongoose-context-protected-plugin subdocument', function () {
