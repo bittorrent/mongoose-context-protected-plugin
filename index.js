@@ -1,38 +1,51 @@
 'use strict';
 
+var util = require('util');
 var _ = require('lodash');
 var q = require('q');
 var assert = require('assert');
-var debug = require('debug')('mongoose-user-protected-plugin:plugin');
+var debug = require('debug')('mongoose-context-protected-plugin:plugin');
 
 var DEFAULT_CAN_READ = true;
 var DEFAULT_CAN_WRITE = false;
 
-module.exports = function mongooseUserProtectedPlugin (schema, options) {
+module.exports = function mongooseContextProtectedPlugin (schema, options) {
     options = _.defaults(options || {}, {
         defaultCanWrite: DEFAULT_CAN_WRITE,
         defaultCanRead: DEFAULT_CAN_READ
     });
     _.extend(schema.methods, {
-        userProtectedRead: function (user) {
-            var obj = this.toObject();
-            var ret = _.pick(obj, function (value, key) {
-                var path = this.schema.path(key);
-                assert(path, key + ' schema path not found');
-                var canRead = path.options.canRead;
+        contextProtectedRead: function (context) {
+            var ret = {};
+            _(this.toObject()).keys().filter(function (key) {
+                var schema = this.schema.path(key);
+                assert(schema, key + ' schema path not found');
+                var canRead = schema.options.canRead;
                 if (_.isBoolean(canRead)) {
                     return canRead;
                 } else if (_.isFunction(canRead)) {
-                    return canRead.call(this, user);
+                    return canRead.call(this, context);
                 } else {
                     return options.defaultCanRead;
                 }
-            }.bind(this));
+            }.bind(this)).each(function (key) {
+                if (this.populated(key)) {
+                    assert(this.get(key).contextProtectedRead, 'contextProtectedRead not defined on reference document');
+                    ret[key] = this.get(key).contextProtectedRead(context);
+                } else if (this.schema.path(key).options.type instanceof Array) {
+                    assert(this.schema.path(key).options.type[0].methods.contextProtectedRead, 'contextProtectedRead not defined on subdocument array');
+                    ret[key] = _.map(this.get(key), function (elem) {
+                        return this.schema.path(key).options.type[0].methods.contextProtectedRead.call(elem, context);
+                    }, this);
+                } else {
+                    ret[key] = this.get(key);
+                }
+            }, this);
             return ret;
         },
 
-        userProtectedWrite: function (user, attr) {
-            debug('userProtectedWrite %o, %o', user, attr);
+        contextProtectedWrite: function (context, attr) {
+            debug('contextProtectedWrite %o, %o', context, attr);
             return q.resolve().then(function () {
                 var canWriteAll = _.all(attr, function (value, key) {
                     var path = this.schema.path(key);
@@ -48,7 +61,7 @@ module.exports = function mongooseUserProtectedPlugin (schema, options) {
                         }
                         return canWrite;
                     } else if (_.isFunction(canWrite)) {
-                        var canWriteRes = canWrite.call(this, user);
+                        var canWriteRes = canWrite.call(this, context);
                         if (!canWriteRes) {
                             debug('write permission for %s evaluated to false', key);
                         }
@@ -64,7 +77,7 @@ module.exports = function mongooseUserProtectedPlugin (schema, options) {
 
                 assert(canWriteAll, 'insufficient permission');
             }.bind(this)).then(function () {
-                debug('userProtectedWrite permitted %o', attr);
+                debug('contextProtectedWrite permitted %o', attr);
                 _.extend(this, attr);
                 var defer = q.defer();
                 this.save(defer.makeNodeResolver());
