@@ -124,12 +124,11 @@ describe('mongoose-context-protected-plugin subdocument', function () {
                 return test.contextProtectedWrite(void 0, {
                     truthy: DATA
                 });
-            }).then(function (test) {
-                var testData = _.map(test.toObject().truthy, function (subdoc) {
-                    return _.omit(subdoc, '_id', '__v');
-                });
-                debug('%o %o', testData, DATA);
-                assert(_.isEqual(testData, []), 'model data must match write data');
+            }).then(function () {
+                assert(false, 'expected insufficient permission assertion error');
+            }, function (err) {
+                assert(err.name === 'AssertionError', 'expected an assertion error');
+                assert(err.message === 'insufficient permission', 'expected insufficient permission');
             }).nodeify(done);
         });
 
@@ -168,12 +167,11 @@ describe('mongoose-context-protected-plugin subdocument', function () {
                 return test.contextProtectedWrite(void 0, {
                     truthy: DATA
                 });
-            }).then(function (test) {
-                var testData = _.map(test.toObject().truthy, function (subdoc) {
-                    return _.omit(subdoc, '_id', '__v');
-                });
-                debug('%o %o', testData, DATA);
-                assert(_.isEqual(testData, []), 'model data must match write data');
+            }).then(function () {
+                assert(false, 'expected insufficient permission assertion error');
+            }, function (err) {
+                assert(err.name === 'AssertionError', 'expected an assertion error');
+                assert(err.message === 'insufficient permission', 'expected insufficient permission');
             }).nodeify(done);
         });
 
@@ -190,12 +188,11 @@ describe('mongoose-context-protected-plugin subdocument', function () {
                 return test.contextProtectedWrite(false, {
                     truthy: DATA
                 });
-            }).then(function (test) {
-                var testData = _.map(test.toObject().truthy, function (subdoc) {
-                    return _.omit(subdoc, '_id', '__v');
-                });
-                debug('%o %o', testData, DATA);
-                assert(_.isEqual(testData, []), 'model data must match write data');
+            }).then(function () {
+                assert(false, 'expected insufficient permission assertion error');
+            }, function (err) {
+                assert(err.name === 'AssertionError', 'expected an assertion error');
+                assert(err.message === 'insufficient permission', 'expected insufficient permission');
             }).nodeify(done);
         });
 
@@ -209,7 +206,7 @@ describe('mongoose-context-protected-plugin subdocument', function () {
                 test.save(defer.makeNodeResolver());
                 return defer.promise;
             }).spread(function (test) {
-                return test.contextProtectedWrite(void 0, {
+                return test.contextProtectedWrite(true, {
                     truthy: DATA
                 });
             }).then(function (test) {

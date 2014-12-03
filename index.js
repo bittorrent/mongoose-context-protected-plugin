@@ -28,6 +28,7 @@ module.exports = function mongooseContextProtectedPlugin (schema, options) {
     };
 
     var canWriteDocumentKey = function (context, doc, key) {
+        debug('canWriteDocumentKey', context, doc, key);
         var path = doc.schema.path(key);
         if (!path) {
             debug('schema path for %s does not exist', key);
@@ -72,8 +73,17 @@ module.exports = function mongooseContextProtectedPlugin (schema, options) {
     };
 
     var canWriteDocument = function (context, doc, attr) {
+        debug('canWriteDocument %o %o %o', context, doc, attr);
         return _.all(attr, function (value, key) {
-            return canWriteDocumentKey(context, doc, key);
+            var isArray = doc.schema.path(key).options.type instanceof Array;
+            var canWrite = canWriteDocumentKey(context, doc, key);
+            if (isArray) {
+                return _.all(attr[key], function (elem) {
+                    return canWriteDocument(context, doc.schema.path(key), elem);
+                }) && canWrite;
+            } else {
+                return canWrite;
+            }
         });
     };
 
