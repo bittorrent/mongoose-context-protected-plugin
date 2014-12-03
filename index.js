@@ -71,14 +71,16 @@ module.exports = function mongooseContextProtectedPlugin (schema, options) {
         return ret;
     };
 
+    var canWriteDocument = function (context, doc, attr) {
+        return _.all(attr, function (value, key) {
+            return canWriteDocumentKey(context, doc, key);
+        });
+    };
+
     var contextProtectedWrite = function (context, doc, attr) {
         debug('contextProtectedWrite %o, %o', context, attr);
         return q.resolve().then(function () {
-            var canWriteAll = _.all(attr, function (value, key) {
-                return canWriteDocumentKey(context, doc, key);
-            });
-            assert(canWriteAll, 'insufficient permission');
-        }).then(function () {
+            assert(canWriteDocument(context, doc, attr), 'insufficient permission');
             debug('contextProtectedWrite permitted %o', attr);
             _.extend(doc, attr);
             var defer = q.defer();
