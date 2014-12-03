@@ -63,10 +63,7 @@ module.exports = function mongooseContextProtectedPlugin (schema, options) {
             if (doc.populated(key)) {
                 ret[key] = contextProtectedRead(context, doc.get(key));
             } else if (doc.schema.path(key).options.type instanceof Array) {
-                assert(doc.schema.path(key).options.type[0].methods.contextProtectedRead, 'contextProtectedRead not defined on subdocument array');
-                ret[key] = _.map(doc.get(key), function (elem) {
-                    return doc.schema.path(key).options.type[0].methods.contextProtectedRead.call(elem, context);
-                });
+                ret[key] = _.map(doc.get(key), _.partial(contextProtectedRead, context));
             } else {
                 ret[key] = doc.get(key);
             }
