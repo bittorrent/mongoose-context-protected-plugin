@@ -28,7 +28,6 @@ module.exports = function mongooseContextProtectedPlugin (schema, options) {
     };
 
     var canWriteDocumentKey = function (context, doc, key) {
-        debug('canWriteDocumentKey', context, doc, key);
         var path = doc.schema.path(key);
         if (!path) {
             debug('schema path for %s does not exist', key);
