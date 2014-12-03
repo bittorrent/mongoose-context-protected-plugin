@@ -9,6 +9,9 @@ var Test = require('./db/test.model');
 var RefTest = require('./db/ref.model');
 
 describe('mongoose-context-protected-plugin ref', function () {
+    // refs can be populated, and thus read from,
+    // but they cannot be written to in the same fashion
+    // as subdocuments, so we only need read tests
     describe('contextProtectedRead', function () {
         it('tests read on key with implicit default canRead', function (done) {
             var TEST_DATA = {
@@ -159,28 +162,6 @@ describe('mongoose-context-protected-plugin ref', function () {
                 debug('%o', refData);
                 assert(_.isEqual(refData, REF_DATA), 'read data must match model initialization data');
             }).nodeify(done);
-        });
-    });
-
-    describe.skip('contextProtectedWrite', function () {
-        it('tests write on key with implicit default canWrite', function (done) {
-            done(new Error('Not implemented'));
-        });
-
-        it('tests write on key with canWrite set to true', function (done) {
-            done(new Error('Not implemented'));
-        });
-
-        it('tests write on key with canWrite set to false', function (done) {
-            done(new Error('Not implemented'));
-        });
-
-        it('tests write on key with canWrite evaluating to false', function (done) {
-            done(new Error('Not implemented'));
-        });
-
-        it('tests write on key with canWrite evaluating to true', function (done) {
-            done(new Error('Not implemented'));
         });
     });
 });

@@ -110,15 +110,20 @@ describe('mongoose-context-protected-plugin native type', function () {
         });
 
         it('tests write on key with canWrite set to true', function (done) {
+            var DATA = {
+                truthy: 'truthyvalue'
+            };
             q.resolve().then(function () {
                 var test = new Test();
                 var defer = q.defer();
                 test.save(defer.makeNodeResolver());
                 return defer.promise;
             }).spread(function (test) {
-                return test.contextProtectedWrite(void 0, {
-                    truthy: 'truthyvalue'
-                });
+                return test.contextProtectedWrite(void 0, DATA);
+            }).then(function (test) {
+                var testData = _.omit(test.toObject(), '_id', '__v');
+                debug('%o', testData);
+                assert(_.isEqual(testData, DATA), 'model data must match write data');
             }).nodeify(done);
         });
 
@@ -159,15 +164,20 @@ describe('mongoose-context-protected-plugin native type', function () {
         });
 
         it('tests write on key with canWrite evaluating to true', function (done) {
+            var DATA = {
+                func: 'funcvalue'
+            };
             q.resolve().then(function () {
                 var test = new Test();
                 var defer = q.defer();
                 test.save(defer.makeNodeResolver());
                 return defer.promise;
             }).spread(function (test) {
-                return test.contextProtectedWrite(true, {
-                    func: 'funcvalue'
-                });
+                return test.contextProtectedWrite(true, DATA);
+            }).then(function (test) {
+                var testData = _.omit(test.toObject(), '_id', '__v');
+                debug('%o', testData);
+                assert(_.isEqual(testData, DATA), 'model data must match write data');
             }).nodeify(done);
         });
     });
