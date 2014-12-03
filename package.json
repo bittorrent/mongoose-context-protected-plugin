@@ -17,19 +17,19 @@
   },
   "homepage": "https://github.com/pwmckenna/mongoose-context-protected-plugin",
   "devDependencies": {
-    "grunt": "0.4.5",
-    "grunt-cli": "0.1.13",
-    "grunt-contrib-jshint": "0.10.0",
-    "grunt-mocha-test": "0.12.4",
-    "mockgoose": "1.10.7",
-    "mongoose": "3.8.x"
+    "grunt": "^0.4.5",
+    "grunt-cli": "^0.1.13",
+    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-mocha-test": "^0.12.4",
+    "mockgoose": "^1.10.7",
+    "mongoose": "^3.8.19"
   },
   "dependencies": {
-    "debug": "2.1.0",
-    "lodash": "2.4.1",
-    "q": "1.1.2"
+    "debug": "^2.1.0",
+    "lodash": "^2.4.1",
+    "q": "^1.1.2"
   },
   "peerDependencies": {
-    "mongoose": "3.8.x"
+    "mongoose": "^3.8.x"
   }
 }
