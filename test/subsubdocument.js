@@ -7,7 +7,7 @@ var debug = require('debug')('mongoose-context-protected-plugin:test');
 
 var SubSubDocumentTest = require('./db/subsubdocument.model');
 
-describe('mongoose-context-protected-plugin subdocument', function () {
+describe('mongoose-context-protected-plugin subsubdocument', function () {
     describe('contextProtectedRead', function () {
         it('tests read on key with implicit default canRead', function (done) {
             var DATA = [{
@@ -143,112 +143,124 @@ describe('mongoose-context-protected-plugin subdocument', function () {
         });
     });
 
-    // describe('contextProtectedWrite', function () {
-    //     it('tests write on key with implicit default canWrite', function (done) {
-    //         var DATA = [{
-    //             implicit: 'implicitvalue'
-    //         }];
-    //         q.resolve().then(function () {
-    //             var test = new SubDocumentTest();
-    //             var defer = q.defer();
-    //             test.save(defer.makeNodeResolver());
-    //             return defer.promise;
-    //         }).spread(function (test) {
-    //             return test.contextProtectedWrite(void 0, {
-    //                 truthy: DATA
-    //             });
-    //         }).then(function () {
-    //             assert(false, 'expected insufficient permission assertion error');
-    //         }, function (err) {
-    //             assert(err.name === 'AssertionError', 'expected an assertion error');
-    //             assert(err.message === 'insufficient permission', 'expected insufficient permission');
-    //         }).nodeify(done);
-    //     });
+    describe('contextProtectedWrite', function () {
+        it('tests write on key with implicit default canWrite', function (done) {
+            var DATA = [{
+                implicit: 'implicitvalue'
+            }];
+            q.resolve().then(function () {
+                var test = new SubSubDocumentTest();
+                var defer = q.defer();
+                test.save(defer.makeNodeResolver());
+                return defer.promise;
+            }).spread(function (test) {
+                return test.contextProtectedWrite(void 0, {
+                    truthy: [{
+                        truthy: DATA
+                    }]
+                });
+            }).then(function () {
+                assert(false, 'expected insufficient permission assertion error');
+            }, function (err) {
+                assert(err.name === 'AssertionError', 'expected an assertion error');
+                assert(err.message === 'insufficient permission', 'expected insufficient permission');
+            }).nodeify(done);
+        });
 
-    //     it('tests write on key with canWrite set to true', function (done) {
-    //         var DATA = [{
-    //             truthy: 'truthyvalue'
-    //         }];
-    //         q.resolve().then(function () {
-    //             var test = new SubDocumentTest();
-    //             var defer = q.defer();
-    //             test.save(defer.makeNodeResolver());
-    //             return defer.promise;
-    //         }).spread(function (test) {
-    //             return test.contextProtectedWrite(void 0, {
-    //                 truthy: DATA
-    //             });
-    //         }).then(function (test) {
-    //             var testData = _.map(test.toObject().truthy, function (subdoc) {
-    //                 return _.omit(subdoc, '_id', '__v');
-    //             });
-    //             debug('%o %o', testData, DATA);
-    //             assert(_.isEqual(testData, DATA), 'model data must match write data');
-    //         }).nodeify(done);
-    //     });
+        it('tests write on key with canWrite set to true', function (done) {
+            var DATA = [{
+                truthy: 'truthyvalue'
+            }];
+            q.resolve().then(function () {
+                var test = new SubSubDocumentTest();
+                var defer = q.defer();
+                test.save(defer.makeNodeResolver());
+                return defer.promise;
+            }).spread(function (test) {
+                return test.contextProtectedWrite(void 0, {
+                    truthy: [{
+                        truthy: DATA
+                    }]
+                });
+            }).then(function (test) {
+                assert(test.toObject().truthy.length === 1, 'expect a single truthy element');
+                var testData = _.map(test.toObject().truthy[0].truthy, function (subdoc) {
+                    return _.omit(subdoc, '_id', '__v');
+                });
+                debug('%o %o', testData, DATA);
+                assert(_.isEqual(testData, DATA), 'model data must match write data');
+            }).nodeify(done);
+        });
 
-    //     it('tests write on key with canWrite set to false', function (done) {
-    //         var DATA = [{
-    //             falsy: 'falsyvalue'
-    //         }];
-    //         q.resolve().then(function () {
-    //             var test = new SubDocumentTest();
-    //             var defer = q.defer();
-    //             test.save(defer.makeNodeResolver());
-    //             return defer.promise;
-    //         }).spread(function (test) {
-    //             return test.contextProtectedWrite(void 0, {
-    //                 truthy: DATA
-    //             });
-    //         }).then(function () {
-    //             assert(false, 'expected insufficient permission assertion error');
-    //         }, function (err) {
-    //             assert(err.name === 'AssertionError', 'expected an assertion error');
-    //             assert(err.message === 'insufficient permission', 'expected insufficient permission');
-    //         }).nodeify(done);
-    //     });
+        it('tests write on key with canWrite set to false', function (done) {
+            var DATA = [{
+                falsy: 'falsyvalue'
+            }];
+            q.resolve().then(function () {
+                var test = new SubSubDocumentTest();
+                var defer = q.defer();
+                test.save(defer.makeNodeResolver());
+                return defer.promise;
+            }).spread(function (test) {
+                return test.contextProtectedWrite(void 0, {
+                    truthy: [{
+                        truthy: DATA
+                    }]
+                });
+            }).then(function () {
+                assert(false, 'expected insufficient permission assertion error');
+            }, function (err) {
+                assert(err.name === 'AssertionError', 'expected an assertion error');
+                assert(err.message === 'insufficient permission', 'expected insufficient permission');
+            }).nodeify(done);
+        });
 
-    //     it('tests write on key with canWrite evaluating to false', function (done) {
-    //         var DATA = [{
-    //             func: 'funcvalue'
-    //         }];
-    //         q.resolve().then(function () {
-    //             var test = new SubDocumentTest();
-    //             var defer = q.defer();
-    //             test.save(defer.makeNodeResolver());
-    //             return defer.promise;
-    //         }).spread(function (test) {
-    //             return test.contextProtectedWrite(false, {
-    //                 truthy: DATA
-    //             });
-    //         }).then(function () {
-    //             assert(false, 'expected insufficient permission assertion error');
-    //         }, function (err) {
-    //             assert(err.name === 'AssertionError', 'expected an assertion error');
-    //             assert(err.message === 'insufficient permission', 'expected insufficient permission');
-    //         }).nodeify(done);
-    //     });
+        it('tests write on key with canWrite evaluating to false', function (done) {
+            var DATA = [{
+                func: 'funcvalue'
+            }];
+            q.resolve().then(function () {
+                var test = new SubSubDocumentTest();
+                var defer = q.defer();
+                test.save(defer.makeNodeResolver());
+                return defer.promise;
+            }).spread(function (test) {
+                return test.contextProtectedWrite(false, {
+                    truthy: [{
+                        truthy: DATA
+                    }]
+                });
+            }).then(function () {
+                assert(false, 'expected insufficient permission assertion error');
+            }, function (err) {
+                assert(err.name === 'AssertionError', 'expected an assertion error');
+                assert(err.message === 'insufficient permission', 'expected insufficient permission');
+            }).nodeify(done);
+        });
 
-    //     it('tests write on key with canWrite evaluating to true', function (done) {
-    //         var DATA = [{
-    //             func: 'funcvalue'
-    //         }];
-    //         q.resolve().then(function () {
-    //             var test = new SubDocumentTest();
-    //             var defer = q.defer();
-    //             test.save(defer.makeNodeResolver());
-    //             return defer.promise;
-    //         }).spread(function (test) {
-    //             return test.contextProtectedWrite(true, {
-    //                 truthy: DATA
-    //             });
-    //         }).then(function (test) {
-    //             var testData = _.map(test.toObject().truthy, function (subdoc) {
-    //                 return _.omit(subdoc, '_id', '__v');
-    //             });
-    //             debug('%o %o', testData, DATA);
-    //             assert(_.isEqual(testData, DATA), 'model data must match write data');
-    //         }).nodeify(done);
-    //     });
-    // });
+        it('tests write on key with canWrite evaluating to true', function (done) {
+            var DATA = [{
+                func: 'funcvalue'
+            }];
+            q.resolve().then(function () {
+                var test = new SubSubDocumentTest();
+                var defer = q.defer();
+                test.save(defer.makeNodeResolver());
+                return defer.promise;
+            }).spread(function (test) {
+                return test.contextProtectedWrite(true, {
+                    truthy: [{
+                        truthy: DATA
+                    }]
+                });
+            }).then(function (test) {
+                assert(test.toObject().truthy.length === 1, 'expect a single truthy element');
+                var testData = _.map(test.toObject().truthy[0].truthy, function (subdoc) {
+                    return _.omit(subdoc, '_id', '__v');
+                });
+                debug('%o %o', testData, DATA);
+                assert(_.isEqual(testData, DATA), 'model data must match write data');
+            }).nodeify(done);
+        });
+    });
 });
