@@ -6,13 +6,13 @@ mongoose-context-protected-plugin
 
 ##Which applications would this apply to?
 
-Often mongoose/express apps start with CRUD routes being a super thin wrapper around database operations. Then to add access control, you might do checks in your route handlers. This is all well end good until you have a boat load of routes all operating on the same models. Perhaps on top of that you allow different types of users access to different parts of the model? This is an attempt to push the access control all the way down onto the models, so when you operate on them, you just provide the context that you're doing it in (on behalf of "John" for instance), and let the model sort it out.
+Often mongoose/express apps start with CRUD routes being a super thin wrapper around database operations. Then to add access control, you might do checks in your route handlers. This is all well and good until you have lots of routes all operating on the same models. Perhaps on top of that you allow different types of users access to different parts of the model? This is an attempt to push the access control all the way down onto the models, so when you operate on them, you just provide the context that you're doing it in (on behalf of "John" for instance), and let the model sort it out.
 
 If you think that ["fat model/skinny controller" is a load of rubbish](http://blog.joncairns.com/2013/04/fat-model-skinny-controller-is-a-load-of-rubbish), you're not going to be a fan of this plugin.
 
 
 ##What problem does this solve?
-Rather than calling `save` or `toObject`/`toJSON` on your model, two alternatives, `contextProtectedRead`/`contextProtectedWrite` are exposed that take into account the context (generally the user that is requesting the change). This is generally useful when performing action on the model because of an api call made from a user.
+Rather than calling `save` or `toObject`/`toJSON` on your model, two alternatives, `contextProtectedRead`/`contextProtectedWrite` are exposed that take into account the context (generally the user that is requesting the change). This is generally useful when performing an action on the model because of an api call made from a user.
 
 ##Usage
 
