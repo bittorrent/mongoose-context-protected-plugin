@@ -62,8 +62,6 @@ module.exports = function mongooseContextProtectedPlugin (schema, options) {
         }).each(function (key) {
             if (doc.populated(key)) {
                 ret[key] = contextProtectedRead(context, doc.get(key));
-            } else if (doc.schema.path(key).options.type instanceof Array) {
-                ret[key] = _.map(doc.get(key), _.partial(contextProtectedRead, context));
             } else {
                 ret[key] = doc.get(key);
             }
@@ -74,15 +72,7 @@ module.exports = function mongooseContextProtectedPlugin (schema, options) {
     var canWriteDocument = function (context, doc, attr) {
         debug('canWriteDocument %o %o %o', context, doc, attr);
         return _.all(attr, function (value, key) {
-            var isArray = doc.schema.path(key).options.type instanceof Array;
-            var canWrite = canWriteDocumentKey(context, doc, key);
-            if (isArray) {
-                return _.all(attr[key], function (elem) {
-                    return canWriteDocument(context, doc.schema.path(key), elem);
-                }) && canWrite;
-            } else {
-                return canWrite;
-            }
+            return canWriteDocumentKey(context, doc, key);
         });
     };
 
