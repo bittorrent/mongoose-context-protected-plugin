@@ -37,7 +37,9 @@ describe('mongoose-context-protected-plugin ref', function () {
                 RefTest.findOne(ref).populate('implicit').exec(defer.makeNodeResolver());
                 return defer.promise;
             }).then(function (ref) {
-                var refData = _.omit(ref.contextProtectedRead(void 0), '_id', '__v');
+                return ref.contextProtectedRead(void 0);
+            }).then(function (data) {
+                var refData = _.omit(data, '_id', '__v');
                 refData.implicit = _.omit(refData.implicit, '_id', '__v');
                 debug('%o', refData);
                 assert(_.isEqual(refData, REF_DATA), 'read data must match model initialization data');
@@ -68,7 +70,9 @@ describe('mongoose-context-protected-plugin ref', function () {
                 RefTest.findOne(ref).populate('implicit').exec(defer.makeNodeResolver());
                 return defer.promise;
             }).then(function (ref) {
-                var refData = _.omit(ref.contextProtectedRead(void 0), '_id', '__v');
+                return ref.contextProtectedRead(void 0);
+            }).then(function (data) {
+                var refData = _.omit(data, '_id', '__v');
                 refData.implicit = _.omit(refData.implicit, '_id', '__v');
                 debug('%o', refData);
                 assert(_.isEqual(refData, REF_DATA), 'read data must match model initialization data');
@@ -95,7 +99,9 @@ describe('mongoose-context-protected-plugin ref', function () {
                 RefTest.findOne(ref).populate('implicit').exec(defer.makeNodeResolver());
                 return defer.promise;
             }).then(function (ref) {
-                var refData = _.omit(ref.contextProtectedRead(void 0), '_id', '__v');
+                return ref.contextProtectedRead(void 0);
+            }).then(function (data) {
+                var refData = _.omit(data, '_id', '__v');
                 refData.implicit = _.omit(refData.implicit, '_id', '__v');
                 debug('%o', refData);
                 assert(_.isEqual(refData, {
@@ -104,7 +110,7 @@ describe('mongoose-context-protected-plugin ref', function () {
             }).nodeify(done);
         });
 
-        it('tests read on key with canRead evaluating to false', function (done) {
+        it('tests read on key with canRead returning false', function (done) {
             q.resolve().then(function () {
                 var test = new Test({
                     func: 'funcvalue'
@@ -124,7 +130,9 @@ describe('mongoose-context-protected-plugin ref', function () {
                 RefTest.findOne(ref).populate('implicit').exec(defer.makeNodeResolver());
                 return defer.promise;
             }).then(function (ref) {
-                var refData = _.omit(ref.contextProtectedRead(false), '_id', '__v');
+                return ref.contextProtectedRead(void 0);
+            }).then(function (data) {
+                var refData = _.omit(data, '_id', '__v');
                 refData.implicit = _.omit(refData.implicit, '_id', '__v');
                 debug('%o', refData);
                 assert(_.isEqual(refData, {
@@ -133,7 +141,7 @@ describe('mongoose-context-protected-plugin ref', function () {
             }).nodeify(done);
         });
 
-        it('tests read on key with canRead evaluating to true', function (done) {
+        it('tests read on key with canRead returning true', function (done) {
             var TEST_DATA = {
                 func: 'funcvalue'
             };
@@ -157,7 +165,73 @@ describe('mongoose-context-protected-plugin ref', function () {
                 RefTest.findOne(ref).populate('implicit').exec(defer.makeNodeResolver());
                 return defer.promise;
             }).then(function (ref) {
-                var refData = _.omit(ref.contextProtectedRead(true), '_id', '__v');
+                return ref.contextProtectedRead(true);
+            }).then(function (data) {
+                var refData = _.omit(data, '_id', '__v');
+                refData.implicit = _.omit(refData.implicit, '_id', '__v');
+                debug('%o', refData);
+                assert(_.isEqual(refData, REF_DATA), 'read data must match model initialization data');
+            }).nodeify(done);
+        });
+
+        it('tests read on key with canRead resolving to false', function (done) {
+            q.resolve().then(function () {
+                var test = new Test({
+                    func: 'funcvalue'
+                });
+                var defer = q.defer();
+                test.save(defer.makeNodeResolver());
+                return defer.promise;
+            }).spread(function (test) {
+                var ref = new RefTest({
+                    implicit: test
+                });
+                var defer = q.defer();
+                ref.save(defer.makeNodeResolver());
+                return defer.promise;
+            }).spread(function (ref) {
+                var defer = q.defer();
+                RefTest.findOne(ref).populate('implicit').exec(defer.makeNodeResolver());
+                return defer.promise;
+            }).then(function (ref) {
+                return ref.contextProtectedRead(q.resolve(false));
+            }).then(function (data) {
+                var refData = _.omit(data, '_id', '__v');
+                refData.implicit = _.omit(refData.implicit, '_id', '__v');
+                debug('%o', refData);
+                assert(_.isEqual(refData, {
+                    implicit: {}
+                }), 'read data must match model initialization data');
+            }).nodeify(done);
+        });
+
+        it('tests read on key with canRead resolving to true', function (done) {
+            var TEST_DATA = {
+                func: 'funcvalue'
+            };
+            var REF_DATA = {
+                implicit: TEST_DATA
+            };
+            q.resolve().then(function () {
+                var test = new Test(TEST_DATA);
+                var defer = q.defer();
+                test.save(defer.makeNodeResolver());
+                return defer.promise;
+            }).spread(function (test) {
+                var ref = new RefTest({
+                    implicit: test
+                });
+                var defer = q.defer();
+                ref.save(defer.makeNodeResolver());
+                return defer.promise;
+            }).spread(function (ref) {
+                var defer = q.defer();
+                RefTest.findOne(ref).populate('implicit').exec(defer.makeNodeResolver());
+                return defer.promise;
+            }).then(function (ref) {
+                return ref.contextProtectedRead(q.resolve(true));
+            }).then(function (data) {
+                var refData = _.omit(data, '_id', '__v');
                 refData.implicit = _.omit(refData.implicit, '_id', '__v');
                 debug('%o', refData);
                 assert(_.isEqual(refData, REF_DATA), 'read data must match model initialization data');

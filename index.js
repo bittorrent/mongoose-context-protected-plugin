@@ -15,71 +15,75 @@ module.exports = function mongooseContextProtectedPlugin (schema, options) {
     });
 
     var canReadDocumentKey = function (context, doc, key) {
-        var schema = doc.schema.path(key);
-        assert(schema, key + ' schema path not found');
-        var canRead = schema.options.canRead;
-        if (_.isBoolean(canRead)) {
-            return canRead;
-        } else if (_.isFunction(canRead)) {
-            return canRead.call(doc, context);
-        } else {
-            return options.defaultCanRead;
-        }
+        return q.resolve().then(function () {
+            var schema = doc.schema.path(key);
+            assert(schema, key + ' schema path not found');
+            var canRead = schema.options.canRead;
+            if (_.isBoolean(canRead)) {
+                return canRead;
+            } else if (_.isFunction(canRead)) {
+                return canRead.call(doc, context);
+            } else {
+                return options.defaultCanRead;
+            }
+        });
     };
 
     var canWriteDocumentKey = function (context, doc, key) {
-        var path = doc.schema.path(key);
-        if (!path) {
-            debug('schema path for %s does not exist', key);
-            return false;
-        }
-        debug('schema path %o', path);
-        var canWrite = path.options.canWrite;
-        if (_.isBoolean(canWrite)) {
-            if (!canWrite) {
-                debug('write permission for %s hard coded to false', key);
+        return q.resolve().then(function () {
+            var path = doc.schema.path(key);
+            if (!path) {
+                debug('schema path for %s does not exist', key);
+                return false;
             }
-            return canWrite;
-        } else if (_.isFunction(canWrite)) {
-            var canWriteRes = canWrite.call(doc, context);
-            if (!canWriteRes) {
-                debug('write permission for %s evaluated to false', key);
+            debug('schema path %o', path);
+            var canWrite = path.options.canWrite;
+            if (_.isBoolean(canWrite)) {
+                if (!canWrite) {
+                    debug('write permission for %s hard coded to false', key);
+                }
+                return canWrite;
+            } else if (_.isFunction(canWrite)) {
+                var canWriteRes = canWrite.call(doc, context);
+                if (!canWriteRes) {
+                    debug('write permission for %s evaluated to false', key);
+                }
+                return canWriteRes;
+            } else {
+                var canWriteDefault = options.defaultCanWrite;
+                if (!canWriteDefault) {
+                    debug('write permission for %s defaulted to false', key);
+                }
+                return canWriteDefault;
             }
-            return canWriteRes;
-        } else {
-            var canWriteDefault = options.defaultCanWrite;
-            if (!canWriteDefault) {
-                debug('write permission for %s defaulted to false', key);
-            }
-            return canWriteDefault;
-        }
+        });
     };
 
     var contextProtectedRead = function (context, doc) {
         var ret = {};
-        _(doc.toObject()).keys().filter(function (key) {
-            return canReadDocumentKey(context, doc, key);
-        }).each(function (key) {
-            if (doc.populated(key)) {
-                ret[key] = contextProtectedRead(context, doc.get(key));
-            } else {
-                ret[key] = doc.get(key);
-            }
-        });
-        return ret;
-    };
-
-    var canWriteDocument = function (context, doc, attr) {
-        debug('canWriteDocument %o %o %o', context, doc, attr);
-        return _.all(attr, function (value, key) {
-            return canWriteDocumentKey(context, doc, key);
-        });
+        return q.all(_.map(_.keys(doc.toObject()), function (key) {
+            return canReadDocumentKey(context, doc, key).then(function (canRead) {
+                if (canRead) {
+                    if (doc.populated(key)) {
+                        return contextProtectedRead(context, doc.get(key)).then(function (value) {
+                            ret[key] = value;
+                        });
+                    } else {
+                        ret[key] = doc.get(key);
+                    }                    
+                }
+            });
+        })).thenResolve(ret);
     };
 
     var contextProtectedWrite = function (context, doc, attr) {
         debug('contextProtectedWrite %o, %o', context, attr);
         return q.resolve().then(function () {
-            assert(canWriteDocument(context, doc, attr), 'insufficient permission');
+            return q.all(_.map(attr, function (value, key) {
+                return canWriteDocumentKey(context, doc, key);
+            }));
+        }).then(function (canWrites) {
+            assert(_.every(canWrites, _.identity), 'insufficient permission');
             debug('contextProtectedWrite permitted %o', attr);
             _.extend(doc, attr);
             var defer = q.defer();
