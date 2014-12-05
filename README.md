@@ -12,7 +12,7 @@ If you think that ["fat model/skinny controller" is a load of rubbish](http://bl
 
 
 ##What problem does this solve?
-Rather than calling `save` or `toObject`/`toJSON` on your model, two alternatives, `contextProtectedRead`/`contextProtectedWrite` are exposed that take into account the context (generally the user that is requesting the change). This is generally useful when performing action on the model because of an api call made from a user.
+Rather than calling `save` or `toObject`/`toJSON` on your model, two alternatives, `contextProtectedRead`/`contextProtectedWrite` are exposed that take into account the context (generally the user that is requesting the change). This is generally useful when performing an action on the model because of an api call made from a user.
 
 ##Usage
 
