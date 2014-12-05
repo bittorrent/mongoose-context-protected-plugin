@@ -8,7 +8,7 @@ mongoose-context-protected-plugin
 
 Often mongoose/express apps start with CRUD routes being a super thin wrapper around database operations. Then to add access control, you might do checks in your route handlers. This is all well end good until you have a boat load of routes all operating on the same models. Perhaps on top of that you allow different types of users access to different parts of the model? This is an attempt to push the access control all the way down onto the models, so when you operate on them, you just provide the context that you're doing it in (on behalf of "John" for instance), and let the model sort it out.
 
-This you think that ["fat model/skinny controller" is a load of rubbish](http://blog.joncairns.com/2013/04/fat-model-skinny-controller-is-a-load-of-rubbish), you're not going to be a fan of this plugin.
+If you think that ["fat model/skinny controller" is a load of rubbish](http://blog.joncairns.com/2013/04/fat-model-skinny-controller-is-a-load-of-rubbish), you're not going to be a fan of this plugin.
 
 
 ##What problem does this solve?
