@@ -16,7 +16,7 @@ Rather than calling `save` or `toObject`/`toJSON` on your model, two alternative
 
 ##Usage
 
-####schema attribute canRead/canWrite -> boolean/function that returns a boolean
+####schema attribute canRead/canWrite -> boolean/function that resolves/returns a boolean
 These functions are options that you set on your mongoose model attributes, that are passed a context, and are expected to return a boolean, depending on whether the action is allowed on the attribute. `this` can also be used, and is the document being edited.
 
 ```js
@@ -45,7 +45,7 @@ var TestSchema = new Schema({
         canWrite: function (user) {
             // if `this` had a owner field, you could compare user with this.owner
             // if only the document owner could write to this field
-            return user.name === 'Daniel';
+            return Q.resolve(user.name === 'Daniel');
         }
     }
 });
@@ -53,15 +53,15 @@ var TestSchema = new Schema({
 TestSchema.plugin(require('mongoose-context-protected-plugin'));
 ```
 
-####doc.contextProtectedRead (context) -> Object
+####doc.contextProtectedRead (context) -> [Q](https://github.com/kriskowal/q) promise
 
-Returns a JSON object, similar to what you might expect from `toObject`/`toJSON`, but only returns the values that are appropriate, depending on which `context` is provided. Will return just the fields where canRead was either not specified, equal to `true`, or returned `true`.
+Resolves to a JSON object, similar to what you might expect from `toObject`/`toJSON`, but only returns the values that are appropriate, depending on which `context` is provided. Will return just the fields where canRead was either not specified, equal to `true`, or returned `true`.
 
 ```js
 // using an instance of TestSchema defined above
 user.name = 'Patrick';
 test.contextProtectedRead(user);
-/**
+/** -> resolved promise
   {
     implicit: XXX,
     truthy: XXX,
