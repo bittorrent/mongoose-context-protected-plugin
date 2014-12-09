@@ -9,22 +9,23 @@ var DEFAULT_CAN_READ = true;
 var DEFAULT_CAN_WRITE = false;
 
 module.exports = function mongooseContextProtectedPlugin (schema, options) {
-    options = _.defaults(options || {}, {
-        defaultCanWrite: DEFAULT_CAN_WRITE,
-        defaultCanRead: DEFAULT_CAN_READ
+    options = options || {};
+    options.defaults = _.defaults(options.defaults || {}, {
+        canRead: DEFAULT_CAN_READ,
+        canWrite: DEFAULT_CAN_WRITE
     });
 
     var canReadDocumentKey = function (context, doc, key) {
         return q.resolve().then(function () {
             var schema = doc.schema.path(key);
             assert(schema, key + ' schema path not found');
-            var canRead = schema.options.canRead;
+            var canRead = schema.options.defaults.canRead;
             if (_.isBoolean(canRead)) {
                 return canRead;
             } else if (_.isFunction(canRead)) {
                 return canRead.call(doc, context);
             } else {
-                return options.defaultCanRead;
+                return options.defaults.canRead;
             }
         });
     };
