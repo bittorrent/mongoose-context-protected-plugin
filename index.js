@@ -51,7 +51,7 @@ module.exports = function mongooseContextProtectedPlugin (schema, options) {
                 }
                 return canWriteRes;
             } else {
-                var canWriteDefault = options.defaultCanWrite;
+                var canWriteDefault = options.defaults.canWrite;
                 if (!canWriteDefault) {
                     debug('write permission for %s defaulted to false', key);
                 }
