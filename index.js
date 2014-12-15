@@ -17,6 +17,7 @@ module.exports = function mongooseContextProtectedPlugin (schema, options) {
 
     var canReadDocumentKey = function (context, doc, key) {
         return q.resolve().then(function () {
+            assert(doc.schema, key + ' schema not found');
             var schema = doc.schema.path(key);
             assert(schema, key + ' schema path not found');
             var canRead = schema.options.canRead;
