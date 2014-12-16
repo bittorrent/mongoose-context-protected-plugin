@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "DEBUG=mongoose-context-protected-plugin:* ./node_modules/grunt-cli/bin/grunt"
+    "test": "DEBUG=mongoose-context-protected-plugin:* Q_DEBUG=1 ./node_modules/grunt-cli/bin/grunt"
   },
   "repository": {
     "type": "git",
