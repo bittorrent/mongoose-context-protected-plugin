@@ -67,9 +67,19 @@ module.exports = function mongooseContextProtectedPlugin (schema, options) {
             return canReadDocumentKey(context, doc, key).then(function (canRead) {
                 if (canRead) {
                     if (doc.populated(key)) {
-                        return contextProtectedRead(context, doc.get(key)).then(function (value) {
-                            ret[key] = value;
-                        });
+                        // un unpopulated array of object ids is still considered "populated",
+                        // so don't trust it. run each element through the ringer
+                        if (_.isArray(doc.schema.path(key).options.type)) {
+                            return q.all(_.map(doc.get(key), function (value) {
+                                return contextProtectedRead(context, value);
+                            })).then(function (values) {
+                                ret[key] = values;
+                            });
+                        } else {
+                            return contextProtectedRead(context, doc.get(key)).then(function (value) {
+                                ret[key] = value;
+                            });
+                        }
                     } else {
                         ret[key] = doc.get(key);
                     }                    
