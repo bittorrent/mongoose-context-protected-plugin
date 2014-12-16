@@ -63,19 +63,21 @@ module.exports = function mongooseContextProtectedPlugin (schema, options) {
 
     var contextProtectedRead = function (context, doc) {
         var ret = {};
-        return q.all(_.map(_.keys(doc.toObject()), function (key) {
-            return canReadDocumentKey(context, doc, key).then(function (canRead) {
-                if (canRead) {
-                    if (doc.populated(key)) {
-                        return contextProtectedRead(context, doc.get(key)).then(function (value) {
-                            ret[key] = value;
+        var promises = [];
+        doc.schema.eachPath(function (pathname) {
+            promises.push(canReadDocumentKey(context, doc, pathname).then(function (canRead) {
+                if (canRead && !_.isUndefined(doc.get(pathname))) {
+                    if (doc.populated(pathname)) {
+                        return contextProtectedRead(context, doc.get(pathname)).then(function (value) {
+                            ret[pathname] = value;
                         });
                     } else {
-                        ret[key] = doc.get(key);
-                    }                    
+                        ret[pathname] = doc.get(pathname);
+                    }
                 }
-            });
-        })).thenResolve(ret);
+            }));
+        });
+        return q.all(promises).thenResolve(ret);
     };
 
     var contextProtectedWrite = function (context, doc, attr) {
