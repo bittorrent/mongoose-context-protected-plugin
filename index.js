@@ -62,15 +62,20 @@ module.exports = function mongooseContextProtectedPlugin (schema, options) {
     };
 
     var contextProtectedRead = function (context, doc) {
+        debug('contextProtectedRead %o', context);
         var ret = {};
         var promises = [];
         doc.schema.eachPath(function (pathname, schema) {
+            debug('contextProtectedRead path %s', pathname);
             promises.push(canReadDocumentKey(context, doc, pathname).then(function (canRead) {
+                debug('contextProtectedRead canRead %s %o', pathname, canRead);
                 var value = doc.get(pathname);
+                debug('contextProtectedRead value %o', value);
                 if (canRead && !_.isUndefined(value)) {
                     if (doc.populated(pathname)) {
                         if (_.isArray(schema.options.type)) {
                             return q.all(_.map(value, function (value) {
+                                debug('contextProtectedRead array value %o', value);
                                 return contextProtectedRead(context, value);
                             })).then(function (value) {
                                 ret[pathname] = value;
