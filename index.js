@@ -66,7 +66,7 @@ module.exports = function mongooseContextProtectedPlugin (schema, options) {
         });
     };
 
-    var contextProtectedRead = function (context, doc) {
+    var contextProtectedRead = function (context, doc, readOptions) {
         debug('contextProtectedRead %o', context);
         var ret = {};
         var promises = [];
@@ -81,12 +81,12 @@ module.exports = function mongooseContextProtectedPlugin (schema, options) {
                         if (_.isArray(schema.options.type)) {
                             return q.all(_.map(value, function (value) {
                                 debug('contextProtectedRead array value %o', value);
-                                return contextProtectedRead(context, value);
+                                return contextProtectedRead(context, value, readOptions);
                             })).then(function (value) {
                                 ret[pathname] = value;
                             });
                         } else {
-                            return contextProtectedRead(context, value).then(function (value) {
+                            return contextProtectedRead(context, value, readOptions).then(function (value) {
                                 ret[pathname] = value;
                             });
                         }
@@ -96,6 +96,11 @@ module.exports = function mongooseContextProtectedPlugin (schema, options) {
                 }
             }));
         });
+        if (readOptions && readOptions.virtuals) {
+            for (var key in doc.schema.virtuals) {
+                ret[key] = doc.get(key);
+            }
+        }
         return q.all(promises).thenResolve(ret);
     };
 
@@ -118,8 +123,8 @@ module.exports = function mongooseContextProtectedPlugin (schema, options) {
     };
 
     _.extend(schema.methods, {
-        contextProtectedRead: function (context) {
-            return contextProtectedRead(context, this);
+        contextProtectedRead: function (context, readOptions) {
+            return contextProtectedRead(context, this, readOptions);
         },
 
         contextProtectedWrite: function (context, attr) {
