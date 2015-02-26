@@ -85,10 +85,13 @@ module.exports = function mongooseContextProtectedPlugin (schema, options) {
                             })).then(function (value) {
                                 ret[pathname] = value;
                             });
-                        } else {
+                        } else if (_.isObject(value)) {
                             return contextProtectedRead(context, value, readOptions).then(function (value) {
                                 ret[pathname] = value;
                             });
+                        } else {
+                            debug('contextProtectedRead WARNING: populated ' + pathname + ' of document ' + doc.id + ' with value ' + value);
+                            ret[pathname] = value;
                         }
                     } else {
                         ret[pathname] = value;
