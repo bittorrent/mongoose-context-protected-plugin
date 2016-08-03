@@ -5,7 +5,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-mocha-test');
     grunt.initConfig({
         mochaTest: {
-            files: ['test/*.js'],
+            files: ['test/**/*.js'],
             options: {
                 run: true
             }

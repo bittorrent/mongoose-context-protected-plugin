@@ -15,9 +15,11 @@ describe('mongoose-context-protected-plugin refarray', function () {
     // as subdocuments, so we only need read tests
     describe('contextProtectedRead', function () {
         it('tests read on key with unpopulated implicit default canRead', function (done) {
+
             var TEST_DATA = {
                 implicit: 'implicitvalue'
             };
+
             q.resolve().then(function () {
                 var test = new Test(TEST_DATA);
                 var defer = q.defer();
@@ -31,6 +33,7 @@ describe('mongoose-context-protected-plugin refarray', function () {
                 ref.save(defer.makeNodeResolver());
                 return defer.promise;
             }).spread(function (ref) {
+                ref.depopulate('implicit');
                 return ref.contextProtectedRead(void 0);
             }).then(function (data) {
                 assert(_.isArray(data.implicit), 'read data must contain an implicit array');
@@ -90,6 +93,7 @@ describe('mongoose-context-protected-plugin refarray', function () {
                 ref.save(defer.makeNodeResolver());
                 return defer.promise;
             }).spread(function (ref) {
+                ref.depopulate('implicit');
                 return ref.contextProtectedRead(void 0);
             }).then(function (data) {
                 assert(_.isArray(data.implicit), 'read data must contain an implicit array');
@@ -149,6 +153,7 @@ describe('mongoose-context-protected-plugin refarray', function () {
                 ref.save(defer.makeNodeResolver());
                 return defer.promise;
             }).spread(function (ref) {
+                ref.depopulate('implicit');
                 return ref.contextProtectedRead(void 0);
             }).then(function (data) {
                 assert(_.isArray(data.implicit), 'read data must contain an implicit array');
@@ -207,6 +212,7 @@ describe('mongoose-context-protected-plugin refarray', function () {
                 ref.save(defer.makeNodeResolver());
                 return defer.promise;
             }).spread(function (ref) {
+                ref.depopulate('implicit');
                 return ref.contextProtectedRead(false);
             }).then(function (data) {
                 assert(_.isArray(data.implicit), 'read data must contain an implicit array');
@@ -267,6 +273,7 @@ describe('mongoose-context-protected-plugin refarray', function () {
                 ref.save(defer.makeNodeResolver());
                 return defer.promise;
             }).spread(function (ref) {
+                ref.depopulate('implicit');
                 return ref.contextProtectedRead(true);
             }).then(function (data) {
                 assert(_.isArray(data.implicit), 'read data must contain an implicit array');
@@ -325,6 +332,7 @@ describe('mongoose-context-protected-plugin refarray', function () {
                 ref.save(defer.makeNodeResolver());
                 return defer.promise;
             }).spread(function (ref) {
+                ref.depopulate('implicit');
                 return ref.contextProtectedRead(q.resolve(false));
             }).then(function (data) {
                 assert(_.isArray(data.implicit), 'read data must contain an implicit array');
@@ -385,6 +393,7 @@ describe('mongoose-context-protected-plugin refarray', function () {
                 ref.save(defer.makeNodeResolver());
                 return defer.promise;
             }).spread(function (ref) {
+                ref.depopulate('implicit');
                 return ref.contextProtectedRead(q.resolve(true));
             }).then(function (data) {
                 assert(_.isArray(data.implicit), 'read data must contain an implicit array');

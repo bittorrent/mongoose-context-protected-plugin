@@ -1,10 +1,10 @@
 {
   "name": "mongoose-context-protected-plugin",
-  "version": "0.1.1",
+  "version": "4.5.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "DEBUG=mongoose-context-protected-plugin:* Q_DEBUG=1 ./node_modules/grunt-cli/bin/grunt"
+    "test": "./node_modules/grunt-cli/bin/grunt"
   },
   "repository": {
     "type": "git",
@@ -17,19 +17,20 @@
   },
   "homepage": "https://github.com/pwmckenna/mongoose-context-protected-plugin",
   "devDependencies": {
-    "grunt": "^0.4.5",
-    "grunt-cli": "^0.1.13",
-    "grunt-contrib-jshint": "^0.10.0",
-    "grunt-mocha-test": "^0.12.4",
-    "mockgoose": "^1.10.7",
-    "mongoose": "^3.8.19"
+    "grunt": "^1.0.1",
+    "grunt-cli": "^1.2.0",
+    "grunt-contrib-jshint": "^1.0.0",
+    "grunt-mocha-test": "^0.12.7",
+    "mocha": "^3.0.0",
+    "mockgoose": "^6.0.6",
+    "mongoose": "^4.5.8"
   },
   "dependencies": {
     "debug": "^2.1.0",
-    "lodash": "^2.4.1",
-    "q": "^1.1.2"
+    "lodash": "^4.14.1",
+    "q": "^1.4.1"
   },
   "peerDependencies": {
-    "mongoose": "^3.8.x"
+    "mongoose": "^4.5.x"
   }
 }

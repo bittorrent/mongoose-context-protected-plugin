@@ -4,8 +4,10 @@ var assert = require('assert');
 var _ = require('lodash');
 var q = require('q');
 var debug = require('debug')('mongoose-context-protected-plugin:test');
-
 var Test = require('./db/test.model');
+
+/*var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/test');*/
 
 describe('mongoose-context-protected-plugin native type', function () {
     describe('contextProtectedRead', function () {
@@ -13,18 +15,16 @@ describe('mongoose-context-protected-plugin native type', function () {
             var DATA = {
                 implicit: 'implicitvalue'
             };
-            q.resolve().then(function () {
-                var test = new Test(DATA);
-                var defer = q.defer();
-                test.save(defer.makeNodeResolver());
-                return defer.promise;
-            }).spread(function (test) {
+
+            let test = new Test(DATA);
+            
+            test.save().then(function(test) {
                 return test.contextProtectedRead(void 0);
-            }).then(function (data) {
+            }).then(function(data) {
                 var testData = _.omit(data, '_id', '__v');
                 debug('%o', testData);
                 assert(_.isEqual(testData, DATA), 'read data must match model initialization data');
-            }).nodeify(done);
+            }).then(done);
         });
 
         it('tests read on key with canRead set to true', function (done) {
